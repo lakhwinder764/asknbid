@@ -27,32 +27,38 @@ const PoolForm = () => {
   useEffect(() => {
     async function fetchPools() {
       let pools_response = await getPools();
-      let poolsOptions = [];
+
+       let poolsOptionso = [];
       for (let item of pools_response.results) {
-        poolsOptions.push({
+        poolsOptionso.push({
           value: item.id,
           label: item.name,
         });
       }
-      setPoolsOptions(poolsOptions);
+      setPoolsOptions(poolsOptionso);
+      console.log(poolsOptions)
     }
     fetchPools();
   }, []);
 
   useEffect(() => {
     async function fetchStocks() {
-      {
-        /* 
-        Task 1:
-            Step 1 out of 4: This function has to handle the getStocks API repsonse.
-                    Refer the above fetchPools function and complete this function similarly.
-                    Hint : First have a look at getStocks function defined in PoolApi.jsx
-      */
+     
+      let stocks_response = await getStocks();
+   
+      let stocksOptions = [];
+      for (let item of stocks_response.results) {
+        stocksOptions.push({
+          value: item.id,
+          label: item.name,
+        });
       }
+      setStocksOptions(stocksOptions);
+      console.log(stocksOptions) 
     }
-
     fetchStocks();
-  }, []);
+
+ }, []);
 
   const showSuccessAlert = (message) => {
     setShowAlert(true);
@@ -74,13 +80,16 @@ const PoolForm = () => {
       return;
     } 
     // Task 2 : Step 1 out of 4: Add a condition to check if userID is empty.
-    else if (selectedStocks.length === 0) { // Task 2 : Step 2 out of 4: Edit this condition to not let the user select more than 4 stocks. 
-      showDangerAlert("Stocks cannot be empty!");
+    if(userID===null){
+      showDangerAlert("User id cannot be empty")
+    }
+    else if (selectedStocks.length >4) { // Task 2 : Step 2 out of 4: Edit this condition to not let the user select more than 4 stocks. 
+      showDangerAlert("More than 4 stocks not allowed!");
       return;
     }
 
     let response = await joinPool({
-      user: "", // Task 1 : Step 3 out of 4: Add userID from the state to the payload.
+      user: userID, // Task 1 : Step 3 out of 4: Add userID from the state to the payload.
       pool: selectedPool.value,
       stocks: selectedStocks.map((item) => item.value),
     });
@@ -88,6 +97,7 @@ const PoolForm = () => {
     if (response.status === 201) {
       // Task 2 : Step 3 out 4: Call the showSuccessAlert function and pass an appropriate message 
       //                  to alert the user that they have joined the pool.
+      showSuccessAlert(`user has joined the pool`)
     } else {
       let message = "";
       for (let item of Object.keys(response.data)) {
@@ -95,6 +105,7 @@ const PoolForm = () => {
       }
       // Task 2 : Step 4 out of 4: Call the showDangerAlert function and pass an appropriate message 
       //                  to alert the user that there has been an error.
+       showDangerAlert(message)
     }
   };
 
